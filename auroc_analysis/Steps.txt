@@ -1,0 +1,265 @@
+1. Collect the probabilities
+----------------------------
+Model training logs folder structure
+------------------------------------
+Logs
+  |-CLAM
+  |-HISTOLAB
+  |-TRIDENT
+  |-MUFASA_SET_1
+     |-STANFORD
+     |-TCGA_COAD_READ
+    	|-AB_MIL
+    	|-MAMBA_MIL
+    	   |-restnet50
+    	      |-log-file-name-based-on-time
+        		 |-fold1
+        		 |-fold2
+        		 |-fold3
+        		 |-fold4
+        		 |-fold5
+        		    |-MAMBA_MIL.yaml
+        		    |-Best_EPOCH_17.pth
+        		    |-Best_Log_seed42_TCGA_CRC_MAMBA_MIL.csv
+        		    |-Last_EPOCH_200.pth
+        		    |-Log_seed42_TCGA_CRC_MAMBA_MIL
+        		    |-Total_5-fold_TCGA_CRC_5fold_with_path.csv 
+
+Extracted features folder structure
+------------------------------------
+Features
+  |-CLAM
+  |-HISTOLAB
+  |-TRIDENT
+     |-STANFORD
+     |-TCGA_COAD_READ
+    	|-Extracted_features 
+    	   |-resnet18
+    	   |-resnet50
+    	   |-uni
+    	      |-*.pt files
+  |-MUFASA_SET_1
+     |-STANFORD
+     |-TCGA_COAD_READ
+    	|-Extracted_features_set1
+    	   |-resnet18
+    	   |-resnet50
+    	   |-uni
+    	      |-*.pt files
+
+Data split file locations
+--------------------------
+splits
+  |-STANFORD
+  |-TCGA_CRC
+     |-TCGA_CRC_CLAM_resnet50_1024_splits
+     |-TCGA_CRC_HISTOLAB_resnet50_1024_splits
+     |-TCGA_CRC_MUFASA_SET_1_resnet50_1024_splits
+     |-TCGA_CRC_TRIDENT_resnet50_1024_splits
+    	|-Total_5-fold_TCGA_CRC_1fold_with_path.csv
+    	|-Total_5-fold_TCGA_CRC_2fold_with_path.csv
+    	|-Total_5-fold_TCGA_CRC_3fold_with_path.csv
+    	|-Total_5-fold_TCGA_CRC_4fold_with_path.csv
+    	|-Total_5-fold_TCGA_CRC_5fold_with_path.csv
+
+These csv files have column names: train_slide_path, train_label, val_slide_path, val_label, test_slide_path, test_label
+train_slide_path, val_slide_path, and test_slide_path contain the paths to the .pt feature files
+train_label, val_label, and test_label contain class label information
+
+As we will be evaluating for test set, assign group=test (make sure test_slide_path and test_label columns have information)
+
+Output folder structure
+-----------------------
+TCGA_CRC
+  |-CLAM
+  |-HISTOLAB
+  |-TRIDENT
+  |-MUFASA_SET_1
+     |-AB_MIL
+    	|-fold_1
+    	|-fold_2
+    	|-fold_3
+    	|-fold_4
+    	|-fold_5
+    	   |-config_AB_MIL.yaml
+    	   |-Detailed_Probabilities_AB_MIL.csv
+    	   |-summary.txt
+    	   |-Total_5-fold_TCGA_NSCLC_5fold_with_path.csv
+     |-MAMBA_MIL
+    	|-fold_1
+    	|-fold_2
+    	|-fold_3
+    	|-fold_4
+    	|-fold_5
+    	   |-config_AB_MIL.yaml
+    	   |-Detailed_Probabilities_AB_MIL.csv
+    	   |-summary.txt
+    	   |-Total_5-fold_TCGA_NSCLC_5fold_with_path.csv
+
+Set the folder options in generate_probabilities.sh
+activate environment that can support running MIL models (for MAMBA different environment)
+Run the generate_probabilities.sh file
+./generate_probabilities.sh
+
+2. Accumulate the probabilities from different folds
+----------------------------------------------------
+Combining probabilities from Detailed_Probabilities_AB_MIL.csv fro each fold in AB_MIL folder
+
+Input older structure
+-----------------------
+TCGA_CRC
+  |-CLAM
+  |-HISTOLAB
+  |-TRIDENT
+  |-MUFASA_SET_1
+     |-AB_MIL
+    	|-fold_1
+    	|-fold_2
+    	|-fold_3
+    	|-fold_4
+    	|-fold_5
+    	   |-config_AB_MIL.yaml
+    	   |-Detailed_Probabilities_AB_MIL.csv
+    	   |-summary.txt
+    	   |-Total_5-fold_TCGA_NSCLC_5fold_with_path.csv
+     |-MAMBA_MIL
+    	|-fold_1
+    	|-fold_2
+    	|-fold_3
+    	|-fold_4
+    	|-fold_5
+    	   |-config_AB_MIL.yaml
+    	   |-Detailed_Probabilities_AB_MIL.csv
+    	   |-summary.txt
+    	   |-Total_5-fold_TCGA_NSCLC_5fold_with_path.csv
+
+Output older structure
+-----------------------
+Output
+  |-TCGA_NSCLC_AB_MIL_CLAM_Probabilities.csv
+  |-TCGA_NSCLC_AB_MIL_HISTOLAB_Probabilities.csv
+  |-TCGA_NSCLC_AB_MIL_TRIDENT_Probabilities.csv
+  |-TCGA_NSCLC_AB_MIL_MUFASA_SET_1_Probabilities.csv
+  |-TCGA_NSCLC_MAMBA_MIL_CLAM_Probabilities.csv
+  |-TCGA_NSCLC_MAMBA_MIL_HISTOLAB_Probabilities.csv
+  |-TCGA_NSCLC_MAMBA_MIL_TRIDENT_Probabilities.csv
+  |-TCGA_NSCLC_MAMBA_MIL_MUFASA_SET_1_Probabilities.csv
+
+Set the folder options in concatenate_probabilities.py
+Run the concatenate_probabilities.py file
+python concatenate_probabilities.py 
+
+3. Calculating AU_ROC by bootstrapping
+--------------------------------------
+Flder structure
+-----------------------
+input/path/
+  |-TCGA_NSCLC_AB_MIL_CLAM_Probabilities.csv
+  |-TCGA_NSCLC_AB_MIL_HISTOLAB_Probabilities.csv
+  |-TCGA_NSCLC_AB_MIL_TRIDENT_Probabilities.csv
+  |-TCGA_NSCLC_AB_MIL_MUFASA_Probabilities.csv
+  |-TCGA_NSCLC_MAMBA_MIL_CLAM_Probabilities.csv
+  |-TCGA_NSCLC_MAMBA_MIL_HISTOLAB_Probabilities.csv
+  |-TCGA_NSCLC_MAMBA_MIL_TRIDENT_Probabilities.csv
+  |-TCGA_NSCLC_MAMBA_MIL_MUFASA_Probabilities.csv
+
+output/path/
+  |-TCGA_NSCLC_AB_MIL_bootstrap_plot.png
+  |-TCGA_NSCLC_bootstrap_results.csv
+
+
+For CAMELYON16
+--------------
+ROOT/
+CLAM
+HISTOLAB
+TRIDENT
+MUFASA_SET_1 
+ |-AB_MIL
+ |-DeepAttn_MIL
+    |-resnet50_1024
+         |-time_2026-01-03-18-02_CAMELYON16_DeepAttn_MIL_seed_41_resnet50_1024
+	    |-fold_1
+		|-Best_EPOCH_15.pth
+		|-Best_Log_seed41_CAMELYON16_DeepAttn_MIL.csv
+		|-Camelyon16_binary_class_label_common_split_with_path.csv
+		|-DeepAttn_MIL.yaml
+		|-Last_EPOCH_200.pth
+		|-Log_seed41_CAMELYON16_DeepAttn_MIL.csv
+         |-time_2026-01-03-18-02_CAMELYON16_DeepAttn_MIL_seed_1337_resnet50_1024
+	    |-fold_1
+		|-Best_EPOCH_15.pth
+		|-Best_Log_seed41_CAMELYON16_DeepAttn_MIL.csv
+		|-Camelyon16_binary_class_label_common_split_with_path.csv
+		|-DeepAttn_MIL.yaml
+		|-Last_EPOCH_200.pth
+		|-Log_seed41_CAMELYON16_DeepAttn_MIL.csv
+	 |-time_2026-01-03-18-02_CAMELYON16_DeepAttn_MIL_seed_2023_resnet50_1024
+	    |-fold_1
+		|-Best_EPOCH_15.pth
+		|-Best_Log_seed41_CAMELYON16_DeepAttn_MIL.csv
+		|-Camelyon16_binary_class_label_common_split_with_path.csv
+		|-DeepAttn_MIL.yaml
+		|-Last_EPOCH_200.pth
+		|-Log_seed41_CAMELYON16_DeepAttn_MIL.csv
+	 |-time_2026-01-03-18-02_CAMELYON16_DeepAttn_MIL_seed_3407_resnet50_1024
+	    |-fold_1
+		|-Best_EPOCH_15.pth
+		|-Best_Log_seed41_CAMELYON16_DeepAttn_MIL.csv
+		|-Camelyon16_binary_class_label_common_split_with_path.csv
+		|-DeepAttn_MIL.yaml
+		|-Last_EPOCH_200.pth
+		|-Log_seed41_CAMELYON16_DeepAttn_MIL.csv
+	 |-time_2026-01-03-18-02_CAMELYON16_DeepAttn_MIL_seed_9999_resnet50_1024
+	    |-fold_1
+		|-Best_EPOCH_15.pth
+		|-Best_Log_seed41_CAMELYON16_DeepAttn_MIL.csv
+		|-Camelyon16_binary_class_label_common_split_with_path.csv
+		|-DeepAttn_MIL.yaml
+		|-Last_EPOCH_200.pth
+		|-Log_seed41_CAMELYON16_DeepAttn_MIL.csv
+
+output folder structure
+---------------------
+/path/CAMELYON16
+CLAM
+HISTOLAB
+TRIDENT
+MUFASA_SET_1 
+ |-AB_MIL
+    |-seed_41
+	|-config_AB_MIL.yaml
+	|-Detailed_Probabilities_AB_MIL.csv
+	|-summary.txt
+	|-Camelyon16_binary_class_label_common_split.csv
+    |-seed_1337
+	|-config_AB_MIL.yaml
+	|-Detailed_Probabilities_AB_MIL.csv
+	|-summary.txt
+	|-Camelyon16_binary_class_label_common_split.csv
+    |-seed_2023
+	|-config_AB_MIL.yaml
+	|-Detailed_Probabilities_AB_MIL.csv
+	|-summary.txt
+	|-Camelyon16_binary_class_label_common_split.csv
+    |-seed_3047
+	|-config_AB_MIL.yaml
+	|-Detailed_Probabilities_AB_MIL.csv
+	|-summary.txt
+	|-Camelyon16_binary_class_label_common_split.csv
+    |-seed_9999
+	|-config_AB_MIL.yaml
+	|-Detailed_Probabilities_AB_MIL.csv
+	|-summary.txt
+	|-Camelyon16_binary_class_label_common_split.csv
+
+Data splits path for CSV_PATH
+CAMELYON16/
+  |-CAMELYON16_CLAM_resnet50_1024_splits
+     |-Camelyon16_binary_class_label_common_split.csv
+  |-CAMELYON16_HISTOLAB_resnet50_1024_splits
+     |-Camelyon16_binary_class_label_common_split.csv
+  |-CAMELYON16_MUFASA_SET_1_resnet50_1024_splits
+     |-Camelyon16_binary_class_label_common_split.csv
+  |-CAMELYON16_TRIDENT_resnet50_1024_splits
+     |-Camelyon16_binary_class_label_common_split.csv 
