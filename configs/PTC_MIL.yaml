@@ -1,0 +1,66 @@
+General:
+    MODEL_NAME: PTC_MIL
+    seed: 2024
+    num_classes: 2
+    num_epochs: 10
+    device: 1
+    num_workers: 4
+    best_model_metric: macro_auc  
+    earlystop: 
+        use: True
+        patience: 40
+        metric: macro_auc
+
+Dataset:
+    DATASET_NAME: STANFORD
+    # when used a single csv file
+    dataset_csv_path: None
+    # when used multiple folds in a folder
+    dataset_root_dir: None
+    # feature extractor used
+    feature_extractor: resnet50_1024
+    
+    balanced_sampler:
+        use: False
+        replacement: True
+
+Logs:
+    log_root_dir: logs/CLAM
+
+Model:
+    # ViT Architecture - REQUIRED
+    in_dim: 1024      # MUST MATCH feature dimension
+    emb_dim: 384         # Embedding dimension
+    n_layers: 2          # Number of transformer layers
+    
+    # Clustering parameters - REQUIRED
+    cluster_number: 5    # Number of clusters (used as heads)
+    momentum: 0.01       # Momentum for moving average
+    moving_pmt: False    # Use moving prompts
+    merge_token: True    # Merge cluster tokens
+    
+    # Training parameters
+    dropout: 0.25
+    drop_out: True
+    act: gelu
+    
+    optimizer:
+        which: adam
+        adam_config:
+            lr: 0.0002
+            weight_decay: 0.00001
+        adamw_config:
+            lr: 0.0002
+            weight_decay: 0.00001
+    
+    criterion: ce
+    
+    scheduler:
+        warmup: 2
+        which: step
+        step_config:
+            step_size: 30
+            gamma: 0.9
+        cosine_config:
+            T_max: 50
+            eta_min: 0.00001
