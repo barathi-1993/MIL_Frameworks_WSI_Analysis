@@ -1,0 +1,63 @@
+# Attention Heatmap Visualization Configuration
+# =============================================
+
+# Input files
+# -----------
+# WSI directory
+wsi_dir: /data_64T_3/Dataset/TCGA_LUSC/images/Tumor_DX1
+
+# Batch input - Option 1: CSV file with columns [wsi_name, wsi_path, feature_path, coords_path]
+wsi_csv: wsi_list.csv
+
+# Batch input - Option 2: Text file with WSI names (one per line)
+wsi_list_txt:  wsi_list.txt
+
+# Features file: .pt file where each row is a tile feature vector
+feature_dir: /data_64T_3/Raja/MUFASA/EXTRACTED_TILES_FEATURES_COORDINATES/TRIDENT/Extracted_features/resnet50_1024
+
+# Coordinates file: .npy file with shape (N, 2) 
+# Row i: [x_coord, y_coord] for tile i (in pixels)
+# Example: [[9984, 7680], [9984, 7936], [9984, 8192], ...]
+# Row-by-row correspondence: row i in .npy = row i in .pt
+coords_dir: /data_64T_3/Raja/MUFASA/EXTRACTED_TILES_FEATURES_COORDINATES/TRIDENT/Coordinates 
+
+# Model configuration
+# -------------------
+# Model name for inference
+model_name: CLAM_MB_MIL   # Options: CLAM_MB_MIL, AB_MIL, MAMBA_MIL, BiMAMBA_MIL, SRMAMBA_MIL, TDA_MIL
+
+# Model configuration file
+model_config: configs/CLAM_MB_MIL.yaml
+
+# Model checkpoint location
+checkpoint: /home/rajaj/Project/7.WSI_Analysis_Experiments/1.WSI_Classification/logs/TRIDENT/TCGA_NSCLC/CLAM_MB_MIL/resnet50_1024/time_2026-01-08-02-41_TCGA_NSCLC_CLAM_MB_MIL_seed_42_resnet50_1024/fold_4/Best_EPOCH_65.pth
+
+# Output configuration
+# --------------------
+output_dir: /data_64T_3/Raja/MUFASA/VISUALIZATION/TCGA_LUSC/ATTENTION_MAPS/TRIDENT/CLAM_MB_MIL
+
+# GPU device
+# ----------
+device: 3
+
+# Visualization parameters
+# ------------------------
+# Colormap for heatmap (options: jet, viridis, hot, coolwarm, plasma, etc.)
+cmap: coolwarm
+
+# Overlay transparency (0.0 = original only, 1.0 = heatmap only)
+alpha: 0.5
+
+# Gaussian smoothing parameter (0.3-1.0, higher = smoother)
+sigma: 0.6
+
+# WSI pyramid level for visualization (0 = highest resolution, higher = lower resolution)
+vis_level: 1
+
+# # Alternative: Use thumbnail size instead of vis_level (set to null to use vis_level)
+# # thumbnail_size: [2048, 2048]
+# thumbnail_size: null
+
+# Tile/patch size in pixels (must match your tile extraction size)
+# This is used to draw patches on the heatmap. It is by default calculated. If you need to override, change null to 256/512 (not recommended)
+patch_size: null
