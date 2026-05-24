@@ -1,4 +1,4 @@
-# 🔬 MIL Frameworks for Whole Slide Image Analysis
+# 🔬 MIL Frameworks for Whole Slide Image Analysis   
 
 > A unified, modular deep learning framework for **Multiple Instance Learning (MIL)**-based Whole Slide Image (WSI) classification — integrating diverse MIL architectures, dataset split strategies, and comprehensive analysis tools.
 
